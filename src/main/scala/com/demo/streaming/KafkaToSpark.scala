@@ -68,26 +68,26 @@ class SparkJob extends Serializable {
     import sparkSession.implicits._
     val lines = sparkSession.readStream
       .format("kafka")
-      .option("subscribe", "test.1")
+      .option("subscribe", "SparkDemo")
       .option("kafka.bootstrap.servers", "localhost:9092")
-      .option("startingOffsets", "earliest")
+      .option("startingOffsets", "latest")
       .load()
       .selectExpr("CAST(value AS STRING)",
         "CAST(topic as STRING)",
-        "CAST(partition as INTEGER)")
+       "CAST(partition as INTEGER)")
       .as[(String, String, Integer)]
-/*
+
     val df =
       lines.map { line =>
         val columns = line._1.split(";") // value being sent out as a comma separated value "userid_1;2015-05-01T00:00:00;some_value"
         (columns(0), Commons.getTimeStamp(columns(1)), columns(2))
       }.toDF(cols: _*)
-*/
 
-   // df.show(5,false)
+
+
 
     // Run your business logic here
-    //val ds = df.select($"user_id", $"time", $"event").as[Commons.UserEvent]
+    val ds = df.select($"user_id", $"time", $"event").as[Commons.UserEvent]
 
     // This Foreach sink writer writes the output to cassandra.
     import org.apache.spark.sql.ForeachWriter
@@ -101,7 +101,7 @@ class SparkJob extends Serializable {
 
     //val query = ds.writeStream.queryName("kafka2Spark2Cassandra").foreach(writer).start
 
-    val consoleOutput1 = lines.writeStream
+    val consoleOutput1 = ds.writeStream
       .outputMode("update")
       .format("console")
       .start()
@@ -109,8 +109,6 @@ class SparkJob extends Serializable {
     consoleOutput1.awaitTermination()
 
 
-
-    
 
    // query.awaitTermination()
     //sparkSession.stop()

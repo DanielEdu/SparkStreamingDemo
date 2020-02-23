@@ -32,7 +32,7 @@ object BatchDemo {
 
 
     // This is the location of the unpackaged files. Update accordingly
-    val logsDirectory = "/home/logan/Datasets/nasa_dataset_july_1995"
+    val logsDirectory = "/home/logan/datasets/nasa_dataset_july_1995"
     val rawLogs = spark.read.json(logsDirectory)
 
 
